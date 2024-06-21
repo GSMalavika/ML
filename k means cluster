@@ -1,0 +1,67 @@
+ #Import libraries needed.
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from mpl_toolkits.mplot3d import Axes3D
+%matplotlib inline
+
+Load data from csv file
+
+data=pd.read_csv(r'/content/Mall_Customers.csv')
+data.head()
+
+ Data Analysis
+
+print("Statistical Summary\n")
+print(data.describe().T)
+
+plt.figure(figsize=(10,6))
+sns.set(style='whitegrid')
+sns.histplot(data['Annual Income (k$)'], bins=30, kde=True,edgecolor='black')
+plt.axvline(data['Annual Income (k$)'].mean(), color='red', linestyle='dashed', linewidth=2, label='Mean')
+plt.axvline(data['Annual Income (k$)'].median(), color='green', linestyle='dashed', linewidth=2, label='Median')
+plt.legend()
+plt.title('Distribution of Annual Income')
+plt.xlabel(' Range of Annual Income')
+plt.ylabel('Count')
+plt.show()
+
+
+plt.figure(figsize=(10,6))
+sns.histplot(data, bins=30, kde=True,edgecolor='black',palette='Set2')
+
+plt.figure(figsize=(10,6))
+sns.barplot(x='Gender',y='Annual Income (k$)',data=data,palette='Set2')
+
+df=data[['Annual Income (k$)','Spending Score (1-100)']]
+df.head()
+
+sns.scatterplot(x='Annual Income (k$)',y='Spending Score (1-100)',data=df)
+plt.show()
+
+#The elbow curve
+
+from sklearn.cluster import KMeans
+
+w=[]
+for i in range(1,11):
+  kmeans=KMeans(n_clusters=i,random_state=42)
+  kmeans.fit(df)
+  w.append(kmeans.inertia_)
+
+
+plt.figure(figsize=(10,6))
+sns.lineplot(x=range(1,11),y=w,marker='o',color='blue')
+plt.title('Elbow Curve')
+plt.xlabel('Number of clusters')
+plt.ylabel('WCSS')
+plt.show()
+
+km1=KMeans(n_clusters=5,random_state=42)
+km1.fit(df)
+
+y=km1.predict(df)
+df['cluster']=y
+df.head()
